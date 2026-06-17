@@ -417,7 +417,7 @@ class Memory:
                 "newest": newest,
                 "paths": paths,
             }
-        except (OSError, ValueError, TypeError):
+        except Exception:
             return {"count": 0, "chars": 0, "path": self.cold_storage_path}
 
     def cold_search(
@@ -559,9 +559,11 @@ class Memory:
 
         if keep_last is not None:
             # Keep the N most recent, purge the rest
-            split_idx = max(0, len(paths_by_age) - keep_last)
-            to_purge = [path for path, _ in paths_by_age[:split_idx]]
-            to_keep = [path for path, _ in paths_by_age[split_idx:]]
+            for i, (path, entry) in enumerate(paths_by_age):
+                if i < len(paths_by_age) - keep_last:
+                    to_purge.append(path)
+                else:
+                    to_keep.append(path)
         elif older_than is not None:
             for path, entry in paths_by_age:
                 evicted_at = entry.get("evicted_at", 0) if isinstance(entry, dict) else 0
@@ -601,7 +603,7 @@ class Memory:
             if not cold_path.exists():
                 return {}
             return json.loads(cold_path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
+        except Exception:
             return {}
 
     def _save_cold(self, data: dict) -> None:
@@ -614,7 +616,7 @@ class Memory:
             cold_path = Path(self.cold_storage_path)
             cold_path.parent.mkdir(parents=True, exist_ok=True)
             cold_path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-        except (OSError, ValueError, TypeError):
+        except Exception:
             pass
 
     def delete(self, path: str, prune: bool = False) -> bool:
@@ -1018,7 +1020,7 @@ class Memory:
                 p = Path(path)
                 if p.exists():
                     self._audit_log = json.loads(p.read_text(encoding="utf-8"))
-            except (OSError, ValueError, TypeError):
+            except Exception:
                 pass
 
     def _save_history(self) -> None:
@@ -1030,7 +1032,7 @@ class Memory:
 
                 p = Path(path)
                 p.write_text(json.dumps(self._audit_log, ensure_ascii=False), encoding="utf-8")
-            except (OSError, ValueError, TypeError):
+            except Exception:
                 pass
 
     def _add_to_history(self, action: str, path: str, value: Any) -> None:
@@ -1081,7 +1083,7 @@ class Memory:
                     all_snaps = json.loads(p.read_text(encoding="utf-8"))
                 else:
                     all_snaps = {}
-            except (OSError, ValueError, TypeError):
+            except Exception:
                 all_snaps = {}
 
             # Save this snapshot
@@ -1131,7 +1133,7 @@ class Memory:
                 self.set_state(state)
                 self._snapshots[name] = state  # Cache in-memory too
                 return True
-            except (OSError, ValueError, TypeError):
+            except Exception:
                 return False
 
     def list_snapshots(self) -> list[dict]:
@@ -1168,7 +1170,7 @@ class Memory:
                     }
                 )
             return sorted(results, key=lambda r: r.get("timestamp", 0), reverse=True)
-        except (OSError, ValueError, TypeError):
+        except Exception:
             return []
 
     def delete_snapshot(self, name: str) -> bool:
@@ -1198,7 +1200,7 @@ class Memory:
                 p.write_text(json.dumps(all_snaps, ensure_ascii=False), encoding="utf-8")
                 self._snapshots.pop(name, None)
                 return True
-            except (OSError, ValueError, TypeError):
+            except Exception:
                 return False
 
     def diff_snapshots(self, name_a: str, name_b: str) -> dict:
@@ -1234,7 +1236,7 @@ class Memory:
                         all_snaps = json.loads(p.read_text(encoding="utf-8"))
                         if name in all_snaps:
                             return all_snaps[name]["state"]
-                except (OSError, ValueError, TypeError):
+                except Exception:
                     pass
             return None
 
