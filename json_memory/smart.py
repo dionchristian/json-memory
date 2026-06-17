@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 SmartMemory -- Intelligent memory layer for AI agents.
 
@@ -595,7 +597,7 @@ def _negation_score(
     # Check if fact is tagged as warning/mistake
     tags = meta.tags or []
     has_warning_tag = any(
-        tag in ["warning", "mistake", "error", "problem", "issue", "avoid"] for tag in tags
+        tag in {"warning", "mistake", "error", "problem", "issue", "avoid"} for tag in tags
     )
 
     # Check if path suggests warning/mistake
