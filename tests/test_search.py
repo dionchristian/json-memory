@@ -26,6 +26,7 @@ def test_create_search(mem):
     assert isinstance(s, AdvancedSearch)
     assert s.memory is mem
 
+
 def test_regex_search_value(search):
     results = search.regex_search("alice", field="value")
     assert len(results) == 2
@@ -70,6 +71,7 @@ def test_regex_search_invalid_regex(search):
 def test_regex_search_no_results(search):
     results = search.regex_search("nonexistent_pattern")
     assert len(results) == 0
+
 
 def test_fuzzy_search(search):
     results = search.fuzzy_search("tradng", threshold=0.4)
@@ -132,3 +134,4 @@ def test_suggest(search):
     suggestions = search.suggest("proje", limit=2)
     assert len(suggestions) == 2
     assert search.suggest("nonexistent") == []
+

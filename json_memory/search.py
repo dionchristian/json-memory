@@ -163,6 +163,13 @@ class AdvancedSearch:
             if score > 0:
                 return score
 
+            # Check fuzzy similarity against individual words in text
+            max_word_sim = max(
+                (SequenceMatcher(None, query, w).ratio() for w in text_words), default=0.0
+            )
+            full_sim = SequenceMatcher(None, query, text).ratio()
+            return max(max_word_sim, full_sim)
+
         # Use sequence similarity
         return SequenceMatcher(None, query, text).ratio()
 

@@ -1305,4 +1305,3 @@ def test_memory_unwatch():
     # Unwatch non-existent path shouldn't crash
     mem.unwatch("does.not.exist")
 
-# -- Synapse Tests -------------------------------------------------

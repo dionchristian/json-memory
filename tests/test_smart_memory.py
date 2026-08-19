@@ -430,7 +430,7 @@ class TestMessageFormatting:
         assert len(messages) == 1
         assert messages[0]["role"] == "system"
         assert "Memory Context:" in messages[0]["content"]
-        assert "Alice" not in messages[0]["content"]
+        assert "Alice" not in messages[0]["content"]  # Name should not be included for age query
         assert "30" in messages[0]["content"]
 
         # Test custom role

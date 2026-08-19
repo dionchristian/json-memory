@@ -23,6 +23,7 @@ import logging
 from typing import Any, Optional, List, Dict, Tuple, Callable
 from pathlib import Path
 
+
 from .memory import Memory
 from .synapse import Synapse
 from .concept_map import expand_query_semantic, get_concept_category
@@ -35,6 +36,8 @@ from .encryption import MemoryEncryption
 from .search import AdvancedSearch
 
 logger = logging.getLogger(__name__)
+
+
 # -- Auto-Extractor Patterns -------------------------------------------
 
 
