@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import re
-import time
-import math
 import json
 import math
 import re
@@ -35,17 +32,19 @@ Wraps Memory + Synapse with:
 Zero dependencies for core functionality.
 """
 
-import re
-import time
-import math
 import json
-import threading
 import logging
+
+_NAME_TUPLE = ('name', 'call me', 'i am', 'my name')
+_TZ_TUPLE = ('timezone', 'time zone', 'location', 'live in')
+_PREF_TUPLE = ('prefer', 'like', 'want', 'setting')
 
 from typing import Any, Optional, List, Dict, Tuple, Callable
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
+
 
 # -- Auto-Extractor Patterns -------------------------------------------
 
