@@ -10,8 +10,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from .concept_map import expand_query_semantic, get_concept_category
 from .consolidation import ConsolidationGroup, consolidate_memory
-from .contradiction import (Contradiction, ContradictionDetector,
-                            detect_contradictions)
+from .contradiction import Contradiction, ContradictionDetector, detect_contradictions
 from .encryption import MemoryEncryption
 from .forgetting import ForgettingCurve, MemoryStrength
 from .memory import Memory
@@ -44,31 +43,14 @@ from typing import Any, Optional, List, Dict, Tuple, Callable
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-_NAME_TUPLE = ("name is", "call me")
-_TZ_TUPLE = ("timezone", "time zone")
-_PREF_TUPLE = ("prefer", "like", "favorite")
-
-from .memory import Memory
-from .synapse import Synapse
-from .concept_map import expand_query_semantic, get_concept_category
-from .contradiction import detect_contradictions, Contradiction, ContradictionDetector
-from .consolidation import consolidate_memory, ConsolidationGroup
-from .forgetting import ForgettingCurve, MemoryStrength
-from .visualizer import visualize_memory
-from .versioning import MemoryVersioning
-from .encryption import MemoryEncryption
-from .search import AdvancedSearch
-
 logger = logging.getLogger(__name__)
 
 
 # -- Auto-Extractor Patterns -------------------------------------------
 
-
-_NAME_TUPLE = ("name is", "call me", "i'm ")
-_TZ_TUPLE = ("timezone", "utc", "gmt", "est", "pst")
+_NAME_TUPLE = ("name", "called", "am")
+_TZ_TUPLE = ("timezone", "time", "gmt", "utc", "est", "pst", "cst", "ist")
 _PREF_TUPLE = ("prefer", "like", "use")
-
 EXTRACTION_PATTERNS = [
     # Name patterns (use lookahead to stop at delimiters)
     (r"(?:my name is|i'?m called|call me|I am) (\w+)(?:\s+and|\s*,|\s*\.|$)", "user.name", 0.8),
