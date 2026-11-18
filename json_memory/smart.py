@@ -35,10 +35,12 @@ Zero dependencies for core functionality.
 
 import json
 import logging
-import math
-import re
-import threading
-import time
+
+_NAME_TUPLE = ('name', 'call me', 'i am', 'my name')
+_TZ_TUPLE = ('timezone', 'time zone', 'location', 'live in')
+_PREF_TUPLE = ('prefer', 'like', 'want', 'setting')
+
+from typing import Any, Optional, List, Dict, Tuple, Callable
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
