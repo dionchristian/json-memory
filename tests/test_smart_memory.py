@@ -98,6 +98,25 @@ class TestScoring:
 
 
 class TestSmartMemory:
+
+    def test_active_topics(self, mem):
+        assert mem.active_topics == []
+
+        mem.log_episode("python", "Discussed python")
+        assert mem.active_topics == ["python"]
+
+        mem.log_episode("RUST", "Discussed rust")
+        assert mem.active_topics == ["rust", "python"]
+
+        # Test limit of 10
+        for i in range(15):
+            mem.log_episode(f"topic_{i}", f"Discussed topic {i}")
+
+        active = mem.active_topics
+        assert len(active) == 10
+        assert active[0] == "topic_14"
+        assert active[-1] == "topic_5"
+
     def test_remember_and_recall(self, mem):
         mem.remember("user.name", "Alice")
         assert mem.recall("user.name") == "Alice"
@@ -348,3 +367,84 @@ class TestEdgeCases:
         assert stats["entries"] == 2
         assert stats["paths"] == 2
         assert "top_scored" in stats
+
+# ── Encryption ─────────────────────────────────────────────────────────
+
+class TestEncryption:
+    def test_enable_disable_encryption(self, mem):
+        assert mem.encryption is None
+        mem.enable_encryption("test-key")
+        assert mem.encryption is not None
+        assert mem.encryption.key_id is not None
+        mem.disable_encryption()
+        assert mem.encryption is None
+
+    def test_remember_recall_encrypted(self, mem):
+        mem.enable_encryption("test-key")
+
+        secret_data = {"token": "secret123", "password": "password1"}
+        mem.remember_encrypted("user.secrets", secret_data)
+
+        # Verify the stored value is encrypted
+        stored = mem.recall("user.secrets")
+        assert stored != secret_data
+        assert "ciphertext" in stored
+
+        # Recall decrypted
+        decrypted = mem.recall_decrypted("user.secrets")
+        assert decrypted == secret_data
+
+    def test_remember_encrypted_without_enabling(self, mem):
+        with pytest.raises(ValueError, match="Encryption not enabled. Call enable_encryption\\(\\) first."):
+            mem.remember_encrypted("test.path", "secret")
+
+    def test_recall_decrypted_without_enabling(self, mem):
+        with pytest.raises(ValueError, match="Encryption not enabled. Call enable_encryption\\(\\) first."):
+            mem.recall_decrypted("test.path")
+
+    def test_recall_decrypted_default(self, mem):
+        mem.enable_encryption("test-key")
+        assert mem.recall_decrypted("nonexistent.path") is None
+        assert mem.recall_decrypted("nonexistent.path", default="missing") == "missing"
+
+    def test_recall_decrypted_unencrypted(self, mem):
+        mem.enable_encryption("test-key")
+
+        # Store normally
+        normal_data = {"public": "data"}
+        mem.remember("public.path", normal_data)
+
+        # Recalling unencrypted data via recall_decrypted should return normally
+        assert mem.recall_decrypted("public.path") == normal_data
+
+# ── OpenAI / Anthropic Formatting ─────────────────────────────────────
+
+class TestMessageFormatting:
+    def test_to_openai_messages(self, mem):
+        mem.remember("user.name", "Alice")
+        mem.remember("user.age", "30")
+
+        # Test default role
+        messages = mem.to_openai_messages("What is my age?")
+        assert isinstance(messages, list)
+        assert len(messages) == 1
+        assert messages[0]["role"] == "system"
+        assert "Memory Context:" in messages[0]["content"]
+        assert "Alice" not in messages[0]["content"]  # Name should not be included for age query
+        assert "30" in messages[0]["content"]
+
+        # Test custom role
+        messages_custom = mem.to_openai_messages("Who am I?", role="developer")
+        assert messages_custom[0]["role"] == "developer"
+
+    def test_to_anthropic_messages(self, mem):
+        mem.remember("user.name", "Bob")
+        mem.remember("user.age", "30")
+
+        messages = mem.to_anthropic_messages("What is my age?")
+        assert isinstance(messages, list)
+        assert len(messages) == 1
+        assert messages[0]["role"] == "user"
+        assert "Relevant context from my memory:" in messages[0]["content"]
+        assert "Bob" not in messages[0]["content"]
+        assert "30" in messages[0]["content"]
