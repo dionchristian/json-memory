@@ -1,5 +1,25 @@
 from __future__ import annotations
 
+import json
+import math
+import re
+import threading
+import time
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
+from .concept_map import expand_query_semantic, get_concept_category
+from .consolidation import ConsolidationGroup, consolidate_memory
+from .contradiction import (Contradiction, ContradictionDetector,
+                            detect_contradictions)
+from .encryption import MemoryEncryption
+from .forgetting import ForgettingCurve, MemoryStrength
+from .memory import Memory
+from .search import AdvancedSearch
+from .synapse import Synapse
+from .versioning import MemoryVersioning
+from .visualizer import visualize_memory
+
 """
 SmartMemory -- Intelligent memory layer for AI agents.
 
@@ -13,16 +33,18 @@ Wraps Memory + Synapse with:
 Zero dependencies for core functionality.
 """
 
-import re
-import time
-import math
 import json
-import threading
 import logging
-
-from typing import Any, Optional, List, Dict, Tuple, Callable
+import math
+import re
+import threading
+import time
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
+_NAME_TUPLE = ("name is", "call me")
+_TZ_TUPLE = ("timezone", "time zone")
+_PREF_TUPLE = ("prefer", "like", "favorite")
 
 from .memory import Memory
 from .synapse import Synapse
@@ -1934,11 +1956,14 @@ class SmartMemory:
         """Try to infer a good dotted path from the value content."""
         v_lower = value.lower()
         for w in _NAME_TUPLE:
-            if w in v_lower: return "user.name"
+            if w in v_lower:
+                return "user.name"
         for w in _TZ_TUPLE:
-            if w in v_lower: return "user.timezone"
+            if w in v_lower:
+                return "user.timezone"
         for w in _PREF_TUPLE:
-            if w in v_lower: return "user.preferences"
+            if w in v_lower:
+                return "user.preferences"
         return "user.notes"
 
     # -- Episodic Memory ----------------------------------------------
