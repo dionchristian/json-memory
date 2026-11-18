@@ -46,10 +46,26 @@ _NAME_TUPLE = ("name is", "call me")
 _TZ_TUPLE = ("timezone", "time zone")
 _PREF_TUPLE = ("prefer", "like", "favorite")
 
+from .memory import Memory
+from .synapse import Synapse
+from .concept_map import expand_query_semantic, get_concept_category
+from .contradiction import detect_contradictions, Contradiction, ContradictionDetector
+from .consolidation import consolidate_memory, ConsolidationGroup
+from .forgetting import ForgettingCurve, MemoryStrength
+from .visualizer import visualize_memory
+from .versioning import MemoryVersioning
+from .encryption import MemoryEncryption
+from .search import AdvancedSearch
+
 logger = logging.getLogger(__name__)
 
 
 # -- Auto-Extractor Patterns -------------------------------------------
+
+
+_NAME_TUPLE = ("name is", "call me", "i'm ")
+_TZ_TUPLE = ("timezone", "utc", "gmt", "est", "pst")
+_PREF_TUPLE = ("prefer", "like", "use")
 
 EXTRACTION_PATTERNS = [
     # Name patterns (use lookahead to stop at delimiters)
